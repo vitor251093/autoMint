@@ -4,18 +4,27 @@ activateNFS='NO'
 activateLDAP='NO'
 activateGuest='NO'
 activateMySQL='NO'
+activateTheme='YES'
 activateWindows='NO'
 activateAutoShutdown='NO'
 
 while [ "$1" != "" ]; do
     case $1 in
         -nfs )                  activateNFS='YES'
+                                shift
+                                NFShome=$1
                                 ;;
         -ldap )                 activateNFS='YES'
+        			shift
+                                LDAPbase=$1
+                                shift
+                                LDAPuri=$1
                                 ;;
         -g | -guest )           activateGuest='YES'
                                 ;;
         -mysql )                activateMySQL='YES'
+                                ;;
+        -nT | --no-theme )      activateTheme='YES'
                                 ;;
         -w | -windows )         activateWindows='YES'
                                 ;;
@@ -46,10 +55,30 @@ while [ "$BURG_PASSWORD" != "$BURG_PASSWORD_CONFIRM" ]; do
     read -s BURG_PASSWORD_CONFIRM
 done
 
-#The following folder is the online path where you will download these files: checkWeb.sh, index.html, logo.png, offline.png, online.png e posimage.sh
+
+if [[ $activateMySQL == "YES" ]]; then
+	echo -e "${red}Type MySQL password:${NC}"
+	read -s MySQL_PASSWORD
+	
+	echo -e "${red}Type MySQL password again:${NC}"
+	read -s MySQL_PASSWORD_CONFIRM
+	
+	while [ "$MySQL_PASSWORD" != "$MySQL_PASSWORD_CONFIRM" ]; do
+    		echo -e "${red}Password don't match${NC}"
+		
+    		echo -e "${red}Type MySQL password:${NC}"
+    		read -s MySQL_PASSWORD
+
+    		echo -e "${red}Type MySQL password again:${NC}"
+    		read -s MySQL_PASSWORD_CONFIRM
+	done
+fi
+
+
+#The following folder is the online path where you will download these files: checkWeb.sh, index.html, logo.png, offline.png, online.png e posimage.shh
 LoginFilesFolder="http://dcc.ufrj.br/~vitormm/Imagem"
-Mensage1="Write here a message that will appear in your"
-Mensage2="BURG help window. Write whatever you want."
+Message1="Write here a message that will appear in your"
+Message2="BURG help window. Write whatever you want."
 
 echo -e "${red}Getting Linux distribution...${NC}"
 LinuxVersion=$(lsb_release -d -s)
@@ -57,52 +86,55 @@ LinuxArchitecture=$(getconf LONG_BIT)
 Linux="$LinuxVersion $LinuxArchitecture-bits"
 echo -e "${red}Linux: $Linux${NC}"
 
-echo -e "${red}Getting Windows partition...${NC}"
-IFS='\n'
-partitions=$(cat /proc/partitions)
-gramar="[0-9]*[^+]sda[1-9]"
-partitions=$(echo $partitions | grep -o $gramar)
-gramar="[0-9][0-9][0-9]*"
-partitionSize=$(echo $partitions | grep -o $gramar)
-partitionSize=$(echo $partitionSize | sort -k1,1n)
-partitionSize=$(echo $partitionSize | tail -1)
-gramar="$partitionSize[^+]sda[1-9]"
-partitions=$(echo $partitions | grep -o $gramar)
-gramar="sda[1-9]"
-windowsPartition=$(echo $partitions | grep -o $gramar)
-echo -e "${red}Windows partition found: $windowsPartition${NC}"
-IFS=$'\n'
+if [[ $activateWindows == "YES" ]]; then
+	echo -e "${red}Getting Windows partition...${NC}"
+	IFS='\n'
+	partitions=$(cat /proc/partitions)
+	gramar="[0-9]*[^+]sda[1-9]"
+	partitions=$(echo $partitions | grep -o $gramar)
+	gramar="[0-9][0-9][0-9]*"
+	partitionSize=$(echo $partitions | grep -o $gramar)
+	partitionSize=$(echo $partitionSize | sort -k1,1n)
+	partitionSize=$(echo $partitionSize | tail -1)
+	gramar="$partitionSize[^+]sda[1-9]"
+	partitions=$(echo $partitions | grep -o $gramar)
+	gramar="sda[1-9]"
+	windowsPartition=$(echo $partitions | grep -o $gramar)
+	echo -e "${red}Windows partition found: $windowsPartition${NC}"
+	IFS=$'\n'
+	
+	echo -e "${red}Getting Windows version...${NC}"
+	apt-get install -y reglookup
+	mount /dev/$windowsPartition /mnt
+	cd /mnt/Windows/System32/config/
+	if [ -f "software" ]; then
+  		reg=$(reglookup -p "Microsoft/Windows NT/CurrentVersion/ProductName" software)
+	else
+  		reg=$(reglookup -p "Microsoft/Windows NT/CurrentVersion/ProductName" SOFTWARE)
+	fi
+	WindowsVersion=$(echo $reg | grep -o 'SZ,[^?]*,')
+	WindowsVersion=$(echo $WindowsVersion | grep -o ',[^,]*')
+	WindowsVersion=$(echo $WindowsVersion | grep -o '[^,]*')
+	if [ -f "system" ]; then
+  		reg=$(reglookup -p "ControlSet001/Control/Session Manager/Environment/PROCESSOR_ARCHITECTURE" system)
+	else 
+  		reg=$(reglookup -p "ControlSet001/Control/Session Manager/Environment/PROCESSOR_ARCHITECTURE" SYSTEM)
+	fi
+	WindowsArchitecture=$(echo $reg | grep -o 'SZ,[^?]*,')
+	WindowsArchitecture=$(echo $WindowsArchitecture | grep -o ',[^,]*')
+	WindowsArchitecture=$(echo $WindowsArchitecture | grep -o '[^, ]*')
+	if [[ $WindowsArchitecture == "x86" ]]; then
+  		WindowsArchitecture="32-bits"
+	else
+  		WindowsArchitecture="64-bits"
+	fi
+	Windows="Microsoft $WindowsVersion$WindowsArchitecture"
+	cd ~/
+	apt-get remove -y reglookup
+	umount /mnt
+	echo -e "${red}Windows: $Windows${NC}"
+fi
 
-echo -e "${red}Getting Windows version...${NC}"
-apt-get install -y reglookup
-mount /dev/$windowsPartition /mnt
-cd /mnt/Windows/System32/config/
-if [ -f "software" ]; then
-  reg=$(reglookup -p "Microsoft/Windows NT/CurrentVersion/ProductName" software)
-else
-  reg=$(reglookup -p "Microsoft/Windows NT/CurrentVersion/ProductName" SOFTWARE)
-fi
-WindowsVersion=$(echo $reg | grep -o 'SZ,[^?]*,')
-WindowsVersion=$(echo $WindowsVersion | grep -o ',[^,]*')
-WindowsVersion=$(echo $WindowsVersion | grep -o '[^,]*')
-if [ -f "system" ]; then
-  reg=$(reglookup -p "ControlSet001/Control/Session Manager/Environment/PROCESSOR_ARCHITECTURE" system)
-else 
-  reg=$(reglookup -p "ControlSet001/Control/Session Manager/Environment/PROCESSOR_ARCHITECTURE" SYSTEM)
-fi
-WindowsArchitecture=$(echo $reg | grep -o 'SZ,[^?]*,')
-WindowsArchitecture=$(echo $WindowsArchitecture | grep -o ',[^,]*')
-WindowsArchitecture=$(echo $WindowsArchitecture | grep -o '[^, ]*')
-if [[ $WindowsArchitecture == "x86" ]]; then
-  WindowsArchitecture="32-bits"
-else
-  WindowsArchitecture="64-bits"
-fi
-Windows="Microsoft $WindowsVersion$WindowsArchitecture"
-cd ~/
-apt-get remove -y reglookup
-umount /mnt
-echo -e "${red}Windows: $Windows${NC}"
 
 echo -e "${red}Updating bash to avoid vulnerabilities...${NC}"
 echo -e "${red}-> Updating repositories list...${NC}"
@@ -111,42 +143,48 @@ echo -e "${red}-> Installing package...${NC}"
 apt-get install --only-upgrade bash
 
 
-echo -e "${red}Configuring Login Screen...${NC}"
-sed -i '/\[daemon\]/aSelectLastLogin=false' /etc/mdm/mdm.conf
-sed -i '/\[daemon\]/aGreeter=/usr/lib/mdm/mdmwebkit' /etc/mdm/mdm.conf
-sed -i '/\[greeter\]/aHTMLTheme=Zukitwo-Circle' /etc/mdm/mdm.conf
-
-echo -e "${red}Updating Login Screen...${NC}"
-cd /usr/share/mdm/html-themes/Zukitwo-Circle/
-rm index.html
-wget "$LoginFilesFolder/index.html" -O index.html
-cd img/
-wget "$LoginFilesFolder/logo.png" -O logo.png
-wget "$LoginFilesFolder/offline.png" -O offline.png
-wget "$LoginFilesFolder/online.png" -O online.png
-wget "$LoginFilesFolder/checkWeb.sh" -O /etc/checkWeb.sh
-chmod 755 /etc/checkWeb.sh
-echo '@reboot root /etc/checkWeb.sh' >> /etc/crontab
-echo '*/1 * * * * root /etc/checkWeb.sh' >> /etc/crontab
-
-
-echo -e "${red}NFS - Configurando a montagem da home...${NC}"
-apt-get install -y nfs-common
-echo -e 'YOUR_HOME:/home\t/home\tnfs\tnfsvers=3,soft\t0\t0' >> /etc/fstab
+if [[ $activateTheme == "YES" ]]; then
+	echo -e "${red}Configuring Login Screen...${NC}"
+	sed -i '/\[daemon\]/aSelectLastLogin=false' /etc/mdm/mdm.conf
+	sed -i '/\[daemon\]/aGreeter=/usr/lib/mdm/mdmwebkit' /etc/mdm/mdm.conf
+	sed -i '/\[greeter\]/aHTMLTheme=Zukitwo-Circle' /etc/mdm/mdm.conf
+	
+	echo -e "${red}Updating Login Screen...${NC}"
+	cd /usr/share/mdm/html-themes/Zukitwo-Circle/
+	rm index.html
+	wget "$LoginFilesFolder/index.html" -O index.html
+	cd img/
+	wget "$LoginFilesFolder/logo.png" -O logo.png
+	wget "$LoginFilesFolder/offline.png" -O offline.png
+	wget "$LoginFilesFolder/online.png" -O online.png
+	wget "$LoginFilesFolder/checkWeb.sh" -O /etc/checkWeb.sh
+	chmod 755 /etc/checkWeb.sh
+	echo '@reboot root /etc/checkWeb.sh' >> /etc/crontab
+	echo '*/1 * * * * root /etc/checkWeb.sh' >> /etc/crontab
+fi
 
 
-echo -e "${red}LDAP - Configurando o login dos alunos...${NC}"
-echo -e 'BASE\tYOUR_BASE\nURI\tYOUR_URI' >> /etc/ldap/ldap.conf
-echo -e 'passwd:         compat ldap' >> /etc/nsswitch.conf
-echo -e 'group:          compat ldap' >d> /etc/nsswitch.conf
-echo -e 'shadow:         compat ldap' >> /etc/nsswitch.conf
-DEBIAN_FRONTEND=noninteractive apt-get install -q -y libnss-ldapd libpam-ldapd nscd
-head -n -2 /etc/ldap/ldap.conf > /etc/ldap/ldap2.conf
-rm /etc/ldap/ldap.conf
-mv /etc/ldap/ldap2.conf /etc/ldap/ldap.conf
+if [[ $activateNFS == "YES" ]]; then
+	echo -e "${red}NFS - Configurando a montagem da home...${NC}"
+	apt-get install -y nfs-common
+	echo -e '$NFShome:/home\t/home\tnfs\tnfsvers=3,soft\t0\t0' >> /etc/fstab
+fi
 
-echo -e "${red}Mudando permissões de nslcd.conf para evitar vulnerabilidade...${NC}"
-chmod 711 /etc/nslcd.conf
+
+if [[ $activateLDAP == "YES" ]]; then
+	echo -e "${red}LDAP - Configurando o login dos alunos...${NC}"
+	echo -e 'BASE\t$LDAPbase\nURI\t$LDAPuri' >> /etc/ldap/ldap.conf
+	echo -e 'passwd:         compat ldap' >> /etc/nsswitch.conf
+	echo -e 'group:          compat ldap' >d> /etc/nsswitch.conf
+	echo -e 'shadow:         compat ldap' >> /etc/nsswitch.conf
+	DEBIAN_FRONTEND=noninteractive apt-get install -q -y libnss-ldapd libpam-ldapd nscd
+	head -n -2 /etc/ldap/ldap.conf > /etc/ldap/ldap2.conf
+	rm /etc/ldap/ldap.conf
+	mv /etc/ldap/ldap2.conf /etc/ldap/ldap.conf
+	
+	echo -e "${red}Mudando permissões de nslcd.conf para evitar vulnerabilidade...${NC}"
+	chmod 711 /etc/nslcd.conf
+fi
 
 
 echo -e "${red}Instalando o BURG...${NC}"
@@ -186,14 +224,20 @@ do
    sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
 done
 echo -e "${red}-> Adicionando novos dados em Sobre...${NC}"
-sed -i "72itext { text = \"Imagem v$Periodo de UFRJ\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
+sed -i "72itext { text = \"Auto-Generated image for Linux Mint\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
 sed -i "73itext { class = br }" /boot/burg/themes/sora/menus
 sed -i "74itext { text = \"$Linux\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
-sed -i "75itext { text = \"$Windows\" class = dialog-text }" /boot/burg/themes/sora/menus
+if [[ $activateWindows == "YES" ]]; then
+	sed -i "75itext { text = \"$Windows\" class = dialog-text }" /boot/burg/themes/sora/menus
+else
+	sed -i "75i " /boot/burg/themes/sora/menus
+fi
 sed -i "76itext { class = br }" /boot/burg/themes/sora/menus
-sed -i "77itext { text = \"$Mensagem1\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
-sed -i "78itext { text = \"$Mensagem2\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
+sed -i "77itext { text = \"$Message1\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
+sed -i "78itext { text = \"$Message2\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
 sed -i 's/txt-about.png/txt-help.png/g' /boot/burg/themes/sora/menus
+
+
 echo -e "${red}-> Melhorando a interface do Sora...${NC}"
 sed -i "6 s/^/#/" /boot/burg/themes/sora/theme
 sed -i "6ibackground = \":,,black,#0\"" /boot/burg/themes/sora/theme
@@ -242,10 +286,13 @@ apt-get install -y vim scilab libreoffice vlc firefox gimp inkscape p7zip-full b
 apt-get install -y codeblocks qtcreator qt-sdk phonon-backend-gstreamer geogebra ruby postgresql pgadmin3 r-base maxima --fix-missing
 apt-get install -y idle-python2.7 idle-python3.4 openssh-client openssh-server
 
-echo -e "${red}Instalando o MySQL...${NC}"
-debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysqldcc'
-debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysqldcc'
-apt-get install -y mysql-server mysql-client mysql-workbench php5-mysql --fix-missing
+
+if [[ $activateMySQL == "YES" ]]; then
+	echo -e "${red}Instalando o MySQL...${NC}"
+	debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysqldcc'
+	debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysqldcc'
+	apt-get install -y mysql-server mysql-client mysql-workbench php5-mysql --fix-missing
+fi
 
 
 echo -e "${red}Instalando Atom...${NC}"
@@ -354,102 +401,6 @@ rm *.deb
 IFS=$'\n'
 
 
-echo -e "${red}Instalando Android Studio...${NC}"
-echo -e "${red}-> Obtendo link de download...${NC}"
-mkdir /tmp/android
-cd /tmp/android
-gramar="https://dl.google.com/dl/android/studio/ide-zips/[^/]*/android-studio-ide-[^/]*-linux.zip"
-androidStudioLink=$(wget --quiet -O - http://developer.android.com/sdk/index.html | grep -o $gramar)
-echo -e "${red}-> Baixando Android Studio...${NC}"
-wget $androidStudioLink -O android.zip
-echo -e "${red}-> Extraindo Android Studio...${NC}"
-unzip android.zip
-echo -e "${red}-> Movendo Android Studio...${NC}"
-mv android-studio /opt/
-cd /opt
-echo -e "${red}-> Definindo permissões...${NC}"
-chown -R root:root android-studio
-chmod -R +r android-studio
-echo -e "${red}-> Criando atalho no bash...${NC}"
-touch /usr/bin/android-studio
-chmod 775 /usr/bin/android-studio
-echo -e '#!/bin/sh\n' > /usr/bin/android-studio
-echo -e 'export ANDROID_STUDIO_HOME="/opt/android-studio"\n\n' >> /usr/bin/android-studio
-echo -e '$ANDROID_STUDIO_HOME/bin/studio.sh $*' >> /usr/bin/android-studio
-echo -e "${red}-> Criando atalho no menu...${NC}"
-echo -e '[Desktop Entry]\n' > /usr/share/applications/android-studio.desktop
-echo -e 'Type=Application\n' >> /usr/share/applications/android-studio.desktop
-echo -e 'Terminal=false\n' >> /usr/share/applications/android-studio.desktop
-echo -e 'Name=Android Studio\n' >> /usr/share/applications/android-studio.desktop
-echo -e 'Exec=android-studio\n' >> /usr/share/applications/android-studio.desktop
-echo -e 'Comment=Integrated Android developer tools for development and debugging.' >> /usr/share/applications/android-studio.desktop
-echo -e 'Icon=/opt/android-studio/bin/idea.png' >> /usr/share/applications/android-studio.desktop
-echo -e 'Categories=GTK;Development;IDE;' >> /usr/share/applications/android-studio.desktop
-
-
-echo -e "${red}Instalando SDK do Android Studio...${NC}"
-echo -e "${red}-> Obtendo link de download...${NC}"
-cd /tmp/android
-gramar="http://dl.google.com/android/android-sdk_[^\"]*-linux.tgz"
-androidStudioLink=$(wget --quiet -O - http://developer.android.com/sdk/index.html | grep -o $gramar)
-echo -e "${red}-> Baixando SDK do Android Studio...${NC}"
-wget $androidStudioLink -O android.tgz
-echo -e "${red}-> Extraindo SDK de Android Studio...${NC}"
-tar zxvf android.tgz
-echo -e "${red}-> Movendo SDK de Android Studio...${NC}"
-mv /tmp/android/android-sdk-linux /opt/android-studio/sdk
-#TRECHO A SEGUIR AINDA NÃO FUNCIONA-------------------------------------------------------------------------------------------------------------
-echo -e "${red}-> Executando instalação de SDKs...${NC}"
-cd /opt/android-studio/sdk/tools/
-echo -e "y\ny\ny" | ./android update sdk --no-ui
-#É necessário instalar Sources for Android SDK, API 21, revision 1
-#É necessário criar Android Virtual Device
-#O comando citado anteriormente talvez deva ser usado mais vezes
-echo -e "y" | ./android update sdk --no-ui
-#É necessário completar instalação da API14 e da API21
-
-
-echo -e "${red}Instalando ShaderLabs...${NC}"
-echo -e "${red}-> Instalando dependências...${NC}"
-apt-get install -y subversion libapache2-svn
-echo -e "${red}-> Baixando repositório...${NC}"
-cd /tmp
-svn checkout http://shader-lab.googlecode.com/svn/trunk/ shader-lab-read-only
-cd shader-lab-read-only
-echo -e "${red}-> Compilando: Etapa 1...${NC}"
-qmake -project
-echo -e "${red}-> Compilando: Etapa 2...${NC}"
-qmake ShaderLab.pro
-echo -e "${red}-> Compilando: Etapa 3 (final)...${NC}"
-make
-echo -e "${red}-> Movendo ShaderLabs...${NC}"
-cd ..
-mv ShaderLabs /opt/
-cp /tmp/shader-lab-read-only/img/1303588878_laboratory.png /opt/ShaderLabs/icon.png
-cd /opt
-echo -e "${red}-> Definindo permissões...${NC}"
-chown -R root:root ShaderLabs
-chmod -R +r ShaderLabs
-echo -e "${red}-> Criando atalho no bash...${NC}"
-touch /usr/bin/ShaderLabs
-chmod 775 /usr/bin/ShaderLabs
-echo -e '#!/bin/sh\n' > /usr/bin/ShaderLabs
-echo -e 'export SHADERLABS_HOME="/opt/ShaderLabs"\n\n' >> /usr/bin/ShaderLabs
-echo -e '$SHADERLABS_HOME/bin/ShaderLabs-linux $*' >> /usr/bin/ShaderLabs
-echo -e "${red}-> Criando atalho no menu...${NC}"
-echo -e '[Desktop Entry]\n' > /usr/share/applications/shaderlabs.desktop
-echo -e 'Type=Application\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Terminal=false\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Name=ShaderLabs\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Exec=ShaderLabs\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Comment=IDE para o aprendizado de programação em shaders\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Icon=/opt/ShaderLabs/icon.png\n' >> /usr/share/applications/shaderlabs.desktop
-echo -e 'Categories=Education;Graphics;IDE' >> /usr/share/applications/shaderlabs.desktop
-echo -e "${red}-> Removendo temporários...${NC}"
-cd /tmp
-rm -r shader-lab-read-only/
-
-
 echo -e "${red}Instalando Eclipse...${NC}"
 echo -e "${red}-> Obtendo link de download...${NC}"
 cd /tmp
@@ -537,7 +488,7 @@ burg-install /dev/sda
 update-burg
 
 
-if [[ $Lab == "LEP"* ]]; then
+if [[ $activateGuest == "YES" ]]; then
 	echo -e "${red}Criando usuário convidado...${NC}"
 	echo -e "${red}-> Criando pasta convidado...${NC}"
 	if [ -d /convidado ]; then
@@ -569,8 +520,10 @@ if [[ $Lab == "LEP"* ]]; then
 fi
 
 
-echo -e "${red}Inserindo script de desligamento...${NC}"
-echo -e '55 23\t* * *\troot\tshutdown -h +5' >> /etc/crontab
+if [[ $activateAutoShutdown == "YES" ]]; then
+	echo -e "${red}Inserindo script de desligamento...${NC}"
+	echo -e '55 23\t* * *\troot\tshutdown -h +5' >> /etc/crontab
+fi
 
 
 echo -e "${red}Baixando script de pós-imagem...${NC}"
