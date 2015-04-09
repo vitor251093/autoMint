@@ -14,7 +14,7 @@ while [ "$1" != "" ]; do
                                 shift
                                 NFShome=$1
                                 ;;
-        -ldap )                 activateNFS='YES'
+        -ldap )                 activateLDAP='YES'
         			shift
                                 LDAPbase=$1
                                 shift
