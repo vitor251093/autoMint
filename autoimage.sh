@@ -2,6 +2,7 @@
 
 activateNFS='NO'
 activateLDAP='NO'
+activateBURG='YES'
 activateGuest='NO'
 activateMySQL='NO'
 activateTheme='YES'
@@ -24,7 +25,9 @@ while [ "$1" != "" ]; do
                                 ;;
         -mysql )                activateMySQL='YES'
                                 ;;
-        -nT | --no-theme )      activateTheme='YES'
+        -nT | --no-theme )      activateTheme='NO'
+                                ;;
+        -nB | --no-burg )       activateBURG='NO'
                                 ;;
         -w | -windows )         activateWindows='YES'
                                 ;;
@@ -39,21 +42,23 @@ done
 red='\033[1;31m'
 NC='\033[0m'
 
-echo -e "${red}Type BURG password:${NC}"
-read -s BURG_PASSWORD
-
-echo -e "${red}Type BURG password again:${NC}"
-read -s BURG_PASSWORD_CONFIRM
-
-while [ "$BURG_PASSWORD" != "$BURG_PASSWORD_CONFIRM" ]; do
-    echo -e "${red}Password don't match${NC}"
-
-    echo -e "${red}Type BURG password:${NC}"
-    read -s BURG_PASSWORD
-
-    echo -e "${red}Type BURG password again:${NC}"
-    read -s BURG_PASSWORD_CONFIRM
-done
+if [[ $activateBURG == "YES" ]]; then
+	echo -e "${red}Type BURG password:${NC}"
+	read -s BURG_PASSWORD
+	
+	echo -e "${red}Type BURG password again:${NC}"
+	read -s BURG_PASSWORD_CONFIRM
+	
+	while [ "$BURG_PASSWORD" != "$BURG_PASSWORD_CONFIRM" ]; do
+    		echo -e "${red}Password don't match${NC}"
+		
+    		echo -e "${red}Type BURG password:${NC}"
+    		read -s BURG_PASSWORD
+		
+    		echo -e "${red}Type BURG password again:${NC}"
+    		read -s BURG_PASSWORD_CONFIRM
+	done
+fi
 
 
 if [[ $activateMySQL == "YES" ]]; then
@@ -76,9 +81,9 @@ fi
 
 
 #The following folder is the online path where you will download these files: checkWeb.sh, index.html, logo.png, offline.png, online.png e posimage.shh
-LoginFilesFolder="http://dcc.ufrj.br/~vitormm/Imagem"
-Message1="Write here a message that will appear in your"
-Message2="BURG help window. Write whatever you want."
+LoginFilesFolder="http://university.website/~your_account/Image_files"
+Message1="educationalMint was created by VitorMM,"
+Message2="but it's Creative Commons, so it's yours."
 
 echo -e "${red}Getting Linux distribution...${NC}"
 LinuxVersion=$(lsb_release -d -s)
@@ -187,96 +192,92 @@ if [[ $activateLDAP == "YES" ]]; then
 fi
 
 
-echo -e "${red}Instalando o BURG...${NC}"
-echo -e "${red}-> Adicionando repositório...${NC}"
-echo "burg-pc burg/linux_cmdline string" | debconf-set-selections
-echo "burg-pc burg/linux_cmdline_default string quiet splash vga=791" | debconf-set-selections
-echo "burg-pc burg-pc/install_devices multiselect ${DEVICE}" | debconf-set-selections
-add-apt-repository -y ppa:n-muench/burg
-echo -e "${red}-> Atualizando lista de repositórios...${NC}"
-apt-get update -qq
-echo -e "${red}-> Instalando pacotes...${NC}"
-apt-get install -y burg burg-themes
-burg-install "(hd0)"
-
-
-echo -e "${red}Configurando o BURG...${NC}"
-
-echo -e "${red}-> Configurando o Layout do BURG...${NC}"
-echo -e "${red}-> Desativando botões desnecessários...${NC}"
-for i in {18..29}
-do
-   sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
-done
-for i in {40..44}
-do
-   sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
-done
-echo -e "${red}-> Traduzindo botões...${NC}"
-sed -i 's/Restart/Reiniciar/g' /boot/burg/themes/sora/menus
-sed -i 's/Shutdown/Desligar/g' /boot/burg/themes/sora/menus
-sed -i 's/About/Sobre/g' /boot/burg/themes/sora/menus
-echo -e "${red}-> Inserindo medida de segurança para botão Desligar...${NC}"
-sed -i 's/halt/poweroff/g' /boot/burg/themes/sora/menus
-echo -e "${red}-> Removendo linhas da janela de Sobre...${NC}"
-for i in {73..81}
-do
-   sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
-done
-echo -e "${red}-> Adicionando novos dados em Sobre...${NC}"
-sed -i "72itext { text = \"Auto-Generated image for Linux Mint\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
-sed -i "73itext { class = br }" /boot/burg/themes/sora/menus
-sed -i "74itext { text = \"$Linux\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
-if [[ $activateWindows == "YES" ]]; then
-	sed -i "75itext { text = \"$Windows\" class = dialog-text }" /boot/burg/themes/sora/menus
-else
-	sed -i "75i " /boot/burg/themes/sora/menus
+if [[ $activateBURG == "YES" ]]; then
+	echo -e "${red}Instalando o BURG...${NC}"
+	echo -e "${red}-> Adicionando repositório...${NC}"
+	echo "burg-pc burg/linux_cmdline string" | debconf-set-selections
+	echo "burg-pc burg/linux_cmdline_default string quiet splash vga=791" | debconf-set-selections
+	echo "burg-pc burg-pc/install_devices multiselect ${DEVICE}" | debconf-set-selections
+	add-apt-repository -y ppa:n-muench/burg
+	echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+	apt-get update -qq
+	echo -e "${red}-> Instalando pacotes...${NC}"
+	apt-get install -y burg burg-themes
+	burg-install "(hd0)"
+	
+	
+	echo -e "${red}Configurando o BURG...${NC}"
+	
+	echo -e "${red}-> Configurando o Layout do BURG...${NC}"
+	echo -e "${red}-> Desativando botões desnecessários...${NC}"
+	for i in {18..29}
+	do
+   		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
+	done
+	for i in {40..44}
+	do
+   		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
+	done
+	echo -e "${red}-> Removendo linhas da janela de Sobre...${NC}"
+	for i in {73..81}
+	do
+   		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
+	done
+	echo -e "${red}-> Adicionando novos dados em Sobre...${NC}"
+	sed -i "72itext { text = \"Auto-Generated image for Linux Mint\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
+	sed -i "73itext { class = br }" /boot/burg/themes/sora/menus
+	sed -i "74itext { text = \"$Linux\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
+	if [[ $activateWindows == "YES" ]]; then
+		sed -i "75itext { text = \"$Windows\" class = dialog-text }" /boot/burg/themes/sora/menus
+	else
+		sed -i "75i " /boot/burg/themes/sora/menus
+	fi
+	sed -i "76itext { class = br }" /boot/burg/themes/sora/menus
+	sed -i "77itext { text = \"$Message1\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
+	sed -i "78itext { text = \"$Message2\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
+	sed -i 's/txt-about.png/txt-help.png/g' /boot/burg/themes/sora/menus
+	
+	
+	echo -e "${red}-> Melhorando a interface do Sora...${NC}"
+	sed -i "6 s/^/#/" /boot/burg/themes/sora/theme
+	sed -i "6ibackground = \":,,black,#0\"" /boot/burg/themes/sora/theme
+	for i in {82..90}
+	do
+   		sed -i "$i s/^/#/" /boot/burg/themes/sora/theme
+	done
+	
+	
+	echo -e "${red}-> Configurando teclas de atalho do BURG...${NC}"
+	cd /boot/burg/themes/conf.d/
+	echo -e 'onkey {\n  c = "*menu_popup term_window"\n  f1 = "menu_popup about"\n  f9 = halt\n  f10 = reboot\n}\n\n' > 10_hotkey
+	echo -e 'mapkey {\n  f5 = ctrl-x\n}' >> 10_hotkey
+	
+	
+	echo -e "${red}-> Definindo parâmetros do BURG...${NC}"
+	gramar='#*GRUB_TIMEOUT=[^*?]*'
+	GRUB_TIMEOUT=$(cat /etc/default/burg | grep -o $gramar)
+	sed -i "s/$GRUB_TIMEOUT/GRUB_TIMEOUT=121/g" /etc/default/burg
+	
+	gramar='#*GRUB_DISABLE_LINUX_RECOVERY=[^*?]*'
+	GRUB_DISABLE_LINUX_RECOVERY=$(cat /etc/default/burg | grep -o $gramar)
+	sed -i "s/$GRUB_DISABLE_LINUX_RECOVERY/GRUB_DISABLE_LINUX_RECOVERY=\"true\"/g" /etc/default/burg
+	
+	gramar='#*GRUB_THEME=[^*?]*'
+	GRUB_THEME=$(cat /etc/default/burg | grep -o $gramar)
+	sed -i "s/$GRUB_THEME/GRUB_THEME=\"sora\"/g" /etc/default/burg
+	
+	gramar='#*GRUB_GFXMODE=[auto,saved0123456789x]*'
+	GRUB_GFXMODE=$(cat /etc/default/burg | grep -o $gramar)
+	BEST_RESOLUTIONS="1280x960,1280x800,1280x720,1024x768,1024x640,1024x576,960x720,960x540,800x600,640x480"
+	sed -i "s/$GRUB_GFXMODE/GRUB_GFXMODE=$BEST_RESOLUTIONS/g" /etc/default/burg
+	
+	echo -e 'GRUB_USERS="ubuntu=:windows="' >> /etc/default/burg
+	
+	
+	echo -e "${red}-> Definindo senha do BURG...${NC}"
+	echo -e "$BURG_PASSWORD\n$BURG_PASSWORD" | burg-adduser -s root
+	update-burg
 fi
-sed -i "76itext { class = br }" /boot/burg/themes/sora/menus
-sed -i "77itext { text = \"$Message1\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
-sed -i "78itext { text = \"$Message2\" class = dialog-text\$ }" /boot/burg/themes/sora/menus
-sed -i 's/txt-about.png/txt-help.png/g' /boot/burg/themes/sora/menus
-
-
-echo -e "${red}-> Melhorando a interface do Sora...${NC}"
-sed -i "6 s/^/#/" /boot/burg/themes/sora/theme
-sed -i "6ibackground = \":,,black,#0\"" /boot/burg/themes/sora/theme
-for i in {82..90}
-do
-   sed -i "$i s/^/#/" /boot/burg/themes/sora/theme
-done
-
-
-echo -e "${red}-> Configurando teclas de atalho do BURG...${NC}"
-cd /boot/burg/themes/conf.d/
-echo -e 'onkey {\n  c = "*menu_popup term_window"\n  f1 = "menu_popup about"\n  f9 = halt\n  f10 = reboot\n}\n\n' > 10_hotkey
-echo -e 'mapkey {\n  f5 = ctrl-x\n}' >> 10_hotkey
-
-
-echo -e "${red}-> Definindo parâmetros do BURG...${NC}"
-gramar='#*GRUB_TIMEOUT=[^*?]*'
-GRUB_TIMEOUT=$(cat /etc/default/burg | grep -o $gramar)
-sed -i "s/$GRUB_TIMEOUT/GRUB_TIMEOUT=121/g" /etc/default/burg
-
-gramar='#*GRUB_DISABLE_LINUX_RECOVERY=[^*?]*'
-GRUB_DISABLE_LINUX_RECOVERY=$(cat /etc/default/burg | grep -o $gramar)
-sed -i "s/$GRUB_DISABLE_LINUX_RECOVERY/GRUB_DISABLE_LINUX_RECOVERY=\"true\"/g" /etc/default/burg
-
-gramar='#*GRUB_THEME=[^*?]*'
-GRUB_THEME=$(cat /etc/default/burg | grep -o $gramar)
-sed -i "s/$GRUB_THEME/GRUB_THEME=\"sora\"/g" /etc/default/burg
-
-gramar='#*GRUB_GFXMODE=[auto,saved0123456789x]*'
-GRUB_GFXMODE=$(cat /etc/default/burg | grep -o $gramar)
-BEST_RESOLUTIONS="1280x960,1280x800,1280x720,1024x768,1024x640,1024x576,960x720,960x540,800x600,640x480"
-sed -i "s/$GRUB_GFXMODE/GRUB_GFXMODE=$BEST_RESOLUTIONS/g" /etc/default/burg
-
-echo -e 'GRUB_USERS="ubuntu=:windows="' >> /etc/default/burg
-
-
-echo -e "${red}-> Definindo senha do BURG...${NC}"
-echo -e "$BURG_PASSWORD\n$BURG_PASSWORD" | burg-adduser -s root
-update-burg
 
 
 echo -e "${red}Instalando os programas...${NC}"
