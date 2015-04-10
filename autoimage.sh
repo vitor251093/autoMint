@@ -80,7 +80,8 @@ if [[ $activateMySQL == "YES" ]]; then
 fi
 
 
-#The following folder is the online path where you will download these files: checkWeb.sh, index.html, logo.png, offline.png, online.png e posimage.shh
+#The following folder is the online path where you will download these files: 
+#checkWeb.sh, index.html, logo.png, offline.png, online.png and posimage.sh
 LoginFilesFolder="http://university.website/~your_account/Image_files"
 Message1="educationalMint was created by VitorMM,"
 Message2="but it's Creative Commons, so it's yours."
@@ -159,7 +160,7 @@ if [[ $activateTheme == "YES" ]]; then
  	cd Simple/
  	wget "$LoginFilesFolder/index.html" -O index.html
  	cd img/
- 	wget "$LoginFilesFolder/logo_dcc.png" -O logo.png
+ 	wget "$LoginFilesFolder/logo.png" -O logo.png
  	wget "$LoginFilesFolder/offline.png" -O offline.png
  	wget "$LoginFilesFolder/online.png" -O online.png
  	
@@ -310,7 +311,7 @@ apt-get install atom --fix-missing
 
 
 echo -e "${red}Installing Intellij IDEA...${NC}"
-echo -e "${red}-> Obtendo link de download...${NC}"
+echo -e "${red}-> Getting download link...${NC}"
 cd /tmp
 gramar="versionIDEALong[^*]*;"
 ideaVar=$(wget --quiet -O - http://www.jetbrains.com/js2/version.js?ver=291009 | grep -o $gramar)
@@ -318,18 +319,18 @@ gramar='\"[^\"]*\"'
 ideaVar=$(echo $ideaVar | grep -o $gramar)
 ideaVar=${ideaVar//\"}
 ideaFile="http://download.jetbrains.com/idea/ideaIC-$ideaVar.tar.gz"
-echo -e "${red}-> Baixando Intellij IDEA...${NC}"
+echo -e "${red}-> Downloading Intellij IDEA...${NC}"
 wget $ideaFile -O idea-IC.tar.gz
-echo -e "${red}-> Extraindo Intellij IDEA...${NC}"
+echo -e "${red}-> Extracting Intellij IDEA...${NC}"
 tar xvf idea-IC.tar.gz
-echo -e "${red}-> Movendo Intellij IDEA...${NC}"
+echo -e "${red}-> Moving Intellij IDEA...${NC}"
 ideaFile=$(find /tmp -maxdepth 1 -name "idea-IC-*")
 sudo mv $ideaFile /opt/idea-IC
 cd /opt
-echo -e "${red}-> Definindo permissões...${NC}"
+echo -e "${red}-> Setting permissions...${NC}"
 sudo chown -R root:root idea-IC
 sudo chmod -R +r idea-IC
-echo -e "${red}-> Criando atalho no bash...${NC}"
+echo -e "${red}-> Creating shortcuts...${NC}"
 sudo touch /usr/bin/idea-IC
 sudo chmod 775 /usr/bin/idea-IC
 echo -e '#!/bin/sh\n' > /usr/bin/idea-IC
@@ -359,55 +360,55 @@ apt-get install -y google-chrome-stable
 
 
 echo -e "${red}Installing Free Pascal e Lazarus...${NC}"
-echo "Obtendo página de Lazarus..."
+echo -e "${red}-> Getting Lazarus webpage...${NC}"
 gramar="/projects/lazarus/files/Lazarus%20Linux%20i386%20DEB/Lazarus%20[^/]*"
 lazaruslink=$(wget --quiet -O - http://sourceforge.net/projects/lazarus/files/Lazarus%20Linux%20i386%20DEB/ | grep -o $gramar)
 IFS=$' '
 lazaruslink="sourceforge.net${lazaruslink[0]}"
 lazaruslink=$(echo $lazaruslink|head -n 1)
-echo -e "${red}-> Obtendo link do Lazarus...${NC}"
+echo -e "${red}-> Getting Lazarus download link...${NC}"
 gramar="$lazaruslink/lazarus_[^?]*.deb"
 lazarusPageLink=$(wget --quiet -O - $lazaruslink | grep -o $gramar)
 lazarusPageLink="${lazarusPageLink/sourceforge.net/ufpr.dl.sourceforge.net}"
 lazarusPageLink="${lazarusPageLink/projects/project}"
 lazarusPageLink="${lazarusPageLink/files\//}"
 lazarusPageLink="http://$lazarusPageLink"
-echo -e "${red}-> Obtendo link de Free Pascal Source...${NC}"
+echo -e "${red}-> Getting Free Pascal Source download link...${NC}"
 gramar="$lazaruslink/fpc-src_[^?]*.deb"
 fpcSrcPageLink=$(wget --quiet -O - $lazaruslink | grep -o $gramar)
 fpcSrcPageLink="${fpcSrcPageLink/sourceforge.net/ufpr.dl.sourceforge.net}"
 fpcSrcPageLink="${fpcSrcPageLink/projects/project}"
 fpcSrcPageLink="${fpcSrcPageLink/files\//}"
 fpcSrcPageLink="http://$fpcSrcPageLink"
-echo -e "${red}-> Obtendo link do Free Pascal...${NC}"
+echo -e "${red}-> Getting Free Pascal download link...${NC}"
 gramar="$lazaruslink/fpc_[^?]*.deb"
 fpcPageLink=$(wget --quiet -O - $lazaruslink | grep -o $gramar)
 fpcPageLink="${fpcPageLink/sourceforge.net/ufpr.dl.sourceforge.net}"
 fpcPageLink="${fpcPageLink/projects/project}"
 fpcPageLink="${fpcPageLink/files\//}"
 fpcPageLink="http://$fpcPageLink"
-echo -e "${red}-> Criando pasta de trabalho...${NC}"
+echo -e "${red}-> Creating work folder...${NC}"
 mkdir /etc/lazarus
 cd /etc/lazarus
-echo -e "${red}-> Baixando Lazarus...${NC}"
+echo -e "${red}-> Downloading Lazarus...${NC}"
 wget $lazarusPageLink -O lazarus.deb
-echo -e "${red}-> Baixando Free Pascal Source...${NC}"
+echo -e "${red}-> Downloading Free Pascal Source...${NC}"
 wget $fpcSrcPageLink -O fpcSrc.deb
-echo -e "${red}-> Baixando Free Pascal...${NC}"
+echo -e "${red}-> Downloading Free Pascal...${NC}"
 wget $fpcPageLink -O fpc.deb
-echo -e "${red}-> Instalando pacotes provisoriamente...${NC}"
+echo -e "${red}-> Installing packages (first try)...${NC}"
 sudo dpkg -i *.deb
-echo -e "${red}-> Corrigindo falha...${NC}"
+echo -e "${red}-> Repairing possible error...${NC}"
 apt-get -f install -y
-echo -e "${red}-> Instalando pacotes definitivamente...${NC}"
+echo -e "${red}-> Installing packages again...${NC}"
 sudo dpkg -i *.deb
-echo -e "${red}-> Removendo arquivos de instalação...${NC}"
+echo -e "${red}-> Removing installation files...${NC}"
 rm *.deb
 IFS=$'\n'
 
 
 echo -e "${red}Installing Eclipse...${NC}"
-echo -e "${red}-> Obtendo link de download...${NC}"
+echo -e "${red}-> Getting download link...${NC}"
 cd /tmp
 gramar='www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/[^"]*/eclipse-jee[^"]*gtk.tar.gz'
 eclipselink=$(wget --quiet -O - http://eclipse.org/downloads/ | grep -o $gramar)
@@ -416,23 +417,23 @@ eclipselink=$(echo $eclipselink|tr -d '\n')
 eclipsepage=$(wget -qO- $eclipselink)
 eclipselink=$(echo $eclipsepage | grep -o 'http://eclipse.c3sl.ufpr.br[^"]*gtk.tar.gz')
 IFS=$'\n'
-echo -e "${red}-> Baixando Eclipse...${NC}"
+echo -e "${red}-> Downloading Eclipse...${NC}"
 wget $eclipselink[0] -O eclipse.tar.gz
-echo -e "${red}-> Extraindo Eclipse...${NC}"
+echo -e "${red}-> Extracting Eclipse...${NC}"
 tar xvf eclipse.tar.gz
-echo -e "${red}-> Movendo Eclipse...${NC}"
+echo -e "${red}-> Moving Eclipse...${NC}"
 mv eclipse /opt/
 cd /opt
-echo -e "${red}-> Definindo permissões...${NC}"
+echo -e "${red}-> Setting permissions...${NC}"
 chown -R root:root eclipse
 chmod -R +r eclipse
-echo -e "${red}-> Criando atalho no bash...${NC}"
+echo -e "${red}-> Creating bash shortcut...${NC}"
 touch /usr/bin/eclipse
 chmod 775 /usr/bin/eclipse
 echo -e '#!/bin/sh\n' > /usr/bin/eclipse
 echo -e 'export ECLIPSE_HOME="/opt/eclipse"\n\n' >> /usr/bin/eclipse
 echo -e '$ECLIPSE_HOME/eclipse $*' >> /usr/bin/eclipse
-echo -e "${red}-> Criando atalho no menu...${NC}"
+echo -e "${red}-> Creating menu shortcut...${NC}"
 echo -e '[Desktop Entry]\n' > /usr/share/applications/eclipse.desktop
 echo -e 'Encoding=UTF-8\n' >> /usr/share/applications/eclipse.desktop
 echo -e 'Name=Eclipse\n' >> /usr/share/applications/eclipse.desktop
@@ -443,7 +444,7 @@ echo -e 'Terminal=false\n' >> /usr/share/applications/eclipse.desktop
 echo -e 'Type=Application\n' >> /usr/share/applications/eclipse.desktop
 echo -e 'Categories=GNOME;Application;Development;\n' >> /usr/share/applications/eclipse.desktop
 echo -e 'StartupNotify=true' >> /usr/share/applications/eclipse.desktop
-echo -e "${red}-> Instalando dependência...${NC}"
+echo -e "${red}-> Installing dependency...${NC}"
 apt-get install -y openjdk-7-jdk
 
 
@@ -477,9 +478,9 @@ else
          wget -O google-earth32.deb http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb
          echo -e "${red}-> Installing package (first try)...${NC}"
          dpkg -i google-earth32.deb
-         echo -e "${red}-> Repairing error...${NC}"
+         echo -e "${red}-> Repairing possible error...${NC}"
          apt-get -f install -y
-         echo -e "${red}-> Installing package...${NC}"
+         echo -e "${red}-> Installing package again...${NC}"
          dpkg -i google-earth32.deb
          echo -e "${red}-> Removing temporary files...${NC}"
          rm google-earth32.deb
