@@ -251,16 +251,16 @@ if [[ $activateBURG == "YES" ]]; then
 	done
 	
 	
-	echo -e "${red}-> Configurando teclas de atalho do BURG...${NC}"
+	echo -e "${red}-> Configuring BURG hotkeys...${NC}"
 	cd /boot/burg/themes/conf.d/
 	echo -e 'onkey {\n  c = "*menu_popup term_window"\n  f1 = "menu_popup about"\n  f9 = halt\n  f10 = reboot\n}\n\n' > 10_hotkey
 	echo -e 'mapkey {\n  f5 = ctrl-x\n}' >> 10_hotkey
 	
 	
-	echo -e "${red}-> Definindo parâmetros do BURG...${NC}"
+	echo -e "${red}-> Definning BURG parameters...${NC}"
 	gramar='#*GRUB_TIMEOUT=[^*?]*'
 	GRUB_TIMEOUT=$(cat /etc/default/burg | grep -o $gramar)
-	sed -i "s/$GRUB_TIMEOUT/GRUB_TIMEOUT=121/g" /etc/default/burg
+	sed -i "s/$GRUB_TIMEOUT/GRUB_TIMEOUT=120/g" /etc/default/burg
 	
 	gramar='#*GRUB_DISABLE_LINUX_RECOVERY=[^*?]*'
 	GRUB_DISABLE_LINUX_RECOVERY=$(cat /etc/default/burg | grep -o $gramar)
@@ -278,13 +278,13 @@ if [[ $activateBURG == "YES" ]]; then
 	echo -e 'GRUB_USERS="ubuntu=:windows="' >> /etc/default/burg
 	
 	
-	echo -e "${red}-> Definindo senha do BURG...${NC}"
+	echo -e "${red}-> Setting BURG password...${NC}"
 	echo -e "$BURG_PASSWORD\n$BURG_PASSWORD" | burg-adduser -s root
 	update-burg
 fi
 
 
-echo -e "${red}Instalando os programas...${NC}"
+echo -e "${red}Installing packages...${NC}"
 apt-get install -y curl emacs gcc g++ geany git kate konsole kile mercurial flex bison byacc libopencv-dev scilab-sivp axiom
 apt-get install -y cmake cmake-curses-gui cmake-qt-gui libmpfr-dev libgmp3-dev libmpfi-dev libboost-all-dev libcgal-dev octave
 apt-get install -y vim scilab libreoffice vlc firefox gimp inkscape p7zip-full blender wireshark netbeans audacity keepassx
@@ -293,23 +293,23 @@ apt-get install -y idle-python2.7 idle-python3.4 openssh-client openssh-server
 
 
 if [[ $activateMySQL == "YES" ]]; then
-	echo -e "${red}Instalando o MySQL...${NC}"
+	echo -e "${red}Installing MySQL...${NC}"
 	debconf-set-selections <<< 'mysql-server mysql-server/root_password password $MySQL_PASSWORD'
 	debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password $MySQL_PASSWORD'
 	apt-get install -y mysql-server mysql-client mysql-workbench php5-mysql --fix-missing
 fi
 
 
-echo -e "${red}Instalando Atom...${NC}"
-echo -e "${red}-> Adicionando repositório...${NC}"
+echo -e "${red}Installing Atom...${NC}"
+echo -e "${red}-> Adding repository...${NC}"
 add-apt-repository -y ppa:webupd8team/atom
-echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+echo -e "${red}-> Updating repositories list...${NC}"
 apt-get update -qq
-echo -e "${red}-> Instalando pacote...${NC}"
+echo -e "${red}-> Installing package...${NC}"
 apt-get install atom --fix-missing
 
 
-echo -e "${red}Instalando Intellij IDEA...${NC}"
+echo -e "${red}Installing Intellij IDEA...${NC}"
 echo -e "${red}-> Obtendo link de download...${NC}"
 cd /tmp
 gramar="versionIDEALong[^*]*;"
@@ -348,17 +348,17 @@ echo -e 'Categories=GTK;Development;IDE;\n' >> /usr/share/applications/idea-IC.d
 echo -e 'StartupNotify=true' >> /usr/share/applications/idea-IC.desktop
 
 
-echo -e "${red}Instalando Google Chrome...${NC}"
-echo -e "${red}-> Inserindo repositório do Google...${NC}"
+echo -e "${red}Installing Google Chrome...${NC}"
+echo -e "${red}-> Adding repository...${NC}"
 sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+echo -e "${red}-> Updating repositories list...${NC}"
 apt-get update -qq
-echo -e "${red}-> Iniciando a instalação...${NC}"
+echo -e "${red}-> Installing package...${NC}"
 apt-get install -y google-chrome-stable
 
 
-echo -e "${red}Instalando Free Pascal e Lazarus...${NC}"
+echo -e "${red}Installing Free Pascal e Lazarus...${NC}"
 echo "Obtendo página de Lazarus..."
 gramar="/projects/lazarus/files/Lazarus%20Linux%20i386%20DEB/Lazarus%20[^/]*"
 lazaruslink=$(wget --quiet -O - http://sourceforge.net/projects/lazarus/files/Lazarus%20Linux%20i386%20DEB/ | grep -o $gramar)
@@ -406,7 +406,7 @@ rm *.deb
 IFS=$'\n'
 
 
-echo -e "${red}Instalando Eclipse...${NC}"
+echo -e "${red}Installing Eclipse...${NC}"
 echo -e "${red}-> Obtendo link de download...${NC}"
 cd /tmp
 gramar='www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/[^"]*/eclipse-jee[^"]*gtk.tar.gz'
@@ -447,46 +447,46 @@ echo -e "${red}-> Instalando dependência...${NC}"
 apt-get install -y openjdk-7-jdk
 
 
-echo -e "${red}Instalando SWI-Prolog...${NC}"
-echo -e "${red}-> Adicionando repositório...${NC}"
+echo -e "${red}Installing SWI-Prolog...${NC}"
+echo -e "${red}-> Adding repository...${NC}"
 apt-add-repository -y ppa:swi-prolog/stable
-echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+echo -e "${red}-> Updating repositories list...${NC}"
 apt-get update -qq
-echo -e "${red}-> Instalando dependências...${NC}"
+echo -e "${red}-> Installing dependencies...${NC}"
 apt-get install -y autoconf curl chrpath libunwind8-dev libjpeg-dev unixodbc-dev libreadline-dev libxpm-dev 
 apt-get install -y libxt-dev libarchive-dev libossp-uuid-dev ncurses-dev 
 apt-get install -y build-essential libssl-dev openjdk-7-jdk
 apt-get install -y zlib1g-dev pkg-config libxft-dev libxinerama-dev libice-dev libxext-dev junit libgmp-dev
-echo -e "${red}-> Iniciando instalação...${NC}"
+echo -e "${red}-> Installing package...${NC}"
 apt-get install -y swi-prolog
 
 
-echo -e "${red}Instalando Google Earth...${NC}"
+echo -e "${red}Installing Google Earth...${NC}"
 if [[ $LinuxArchitecture == "64" ]]; then
-         echo -e "${red}-> Adicionando repositórios...${NC}"
+         echo -e "${red}-> Adding repository...${NC}"
          dpkg --add-architecture i386
-         echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+         echo -e "${red}-> Updating repositories list...${NC}"
          apt-get update -qq
-         echo -e "${red}-> Instalando dependências...${NC}"
+         echo -e "${red}-> Installing dependencies...${NC}"
          apt-get install ia32-libs
-         echo -e "${red}-> Iniciando instalação...${NC}"
+         echo -e "${red}-> Installing package...${NC}"
          apt-get install googleearth-package
          apt-get install google-earth-stable:i386
 else
          echo -e "${red}-> Baixando Google Earth...${NC}"
          wget -O google-earth32.deb http://dl.google.com/dl/earth/client/current/google-earth-stable_current_i386.deb
-         echo -e "${red}-> Iniciando instalação por erro...${NC}"
+         echo -e "${red}-> Installing package (first try)...${NC}"
          dpkg -i google-earth32.deb
-         echo -e "${red}-> Corrigindo erro...${NC}"
+         echo -e "${red}-> Repairing error...${NC}"
          apt-get -f install -y
-         echo -e "${red}-> Iniciando instalação...${NC}"
+         echo -e "${red}-> Installing package...${NC}"
          dpkg -i google-earth32.deb
-         echo -e "${red}-> Removendo temporários...${NC}"
+         echo -e "${red}-> Removing temporary files...${NC}"
          rm google-earth32.deb
 fi
 
 
-echo -e "${red}Atualizando todos os programas e o sistema...${NC}"
+echo -e "${red}Updating everything...${NC}"
 aptitude -q update
 aptitude -q safe-upgrade -y
 burg-install /dev/sda
@@ -494,43 +494,43 @@ update-burg
 
 
 if [[ $activateGuest == "YES" ]]; then
-	echo -e "${red}Criando usuário convidado...${NC}"
-	echo -e "${red}-> Criando pasta convidado...${NC}"
+	echo -e "${red}Creating Guest user...${NC}"
+	echo -e "${red}-> Creating Guest folder...${NC}"
 	if [ -d /convidado ]; then
-		rm -R /convidado
-		mkdir /convidado
+		rm -R /guest
+		mkdir /guest
 	else
-		mkdir /convidado
+		mkdir /guest
 	fi
 	
-	if [ -z "$(getent passwd convidado)" ]; then
-		echo -e "${red}-> Adicionando usuário convidado...${NC}"
-		useradd -d /convidado -s /bin/bash convidado
+	if [ -z "$(getent passwd guest)" ]; then
+		echo -e "${red}-> Adding Guest user...${NC}"
+		useradd -d /guest -s /bin/bash guest
 	else
-		echo -e "${red}-> Modificando usuário convidado...${NC}"
-		usermod -d /convidado -s /bin/bash convidado
+		echo -e "${red}-> Modifying Guest user...${NC}"
+		usermod -d /guest -s /bin/bash guest
 	fi
-		echo -e "${red}-> Colocando as devidas permissões...${NC}"
-		chmod 755 -R /convidado
-		chown -R convidado:convidado /convidado
-		echo -e "${red}-> Colocando senha padrão...${NC}"
-		echo -e "convidado\nconvidado" | passwd convidado	
+		echo -e "${red}-> Setting permissions...${NC}"
+		chmod 755 -R /guest
+		chown -R guest:guest /guest
+		echo -e "${red}-> Setting password...${NC}"
+		echo -e "guest\nguest" | passwd guest
 
 
-	echo -e "${red}Inserindo script de limpeza...${NC}"
-	echo -e 'rm -R /convidado\nmkdir /convidado\nchmod 755 -R /convidado\n' > /root/scriptLimpeza.sh
-	echo -e 'chown -R convidado:convidado /convidado' >> /root/scriptLimpeza.sh
-	echo '@reboot root /root/scriptLimpeza.sh' >> /etc/crontab
-	chmod +x /root/scriptLimpeza.sh
+	echo -e "${red}Inserting cleaning script...${NC}"
+	echo -e 'rm -R /guest\nmkdir /guest\nchmod 755 -R /guest\n' > /root/cleaningScript.sh
+	echo -e 'chown -R guest:guest /guest' >> /root/cleaningScript.sh
+	echo '@reboot root /root/cleaningScript.sh' >> /etc/crontab
+	chmod +x /root/cleaningScript.sh
 fi
 
 
 if [[ $activateAutoShutdown == "YES" ]]; then
-	echo -e "${red}Inserindo script de desligamento...${NC}"
+	echo -e "${red}Inserting auto-shutdown script...${NC}"
 	echo -e '55 23\t* * *\troot\tshutdown -h +5' >> /etc/crontab
 fi
 
 
-echo -e "${red}Baixando script de pós-imagem...${NC}"
-wget "$LoginFilesFolder/posimagem.sh" -O /root/posimagem.sh
-chmod 755 /root/posimagem.sh
+echo -e "${red}Downloading posimage.sh script...${NC}"
+wget "$LoginFilesFolder/posimage.sh" -O /root/posimage.sh
+chmod 755 /root/posimage.sh
