@@ -290,8 +290,8 @@ apt-get install -y idle-python2.7 idle-python3.4 openssh-client openssh-server
 
 if [[ $activateMySQL == "YES" ]]; then
 	echo -e "${red}Instalando o MySQL...${NC}"
-	debconf-set-selections <<< 'mysql-server mysql-server/root_password password mysqldcc'
-	debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password mysqldcc'
+	debconf-set-selections <<< 'mysql-server mysql-server/root_password password $MySQL_PASSWORD'
+	debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password $MySQL_PASSWORD'
 	apt-get install -y mysql-server mysql-client mysql-workbench php5-mysql --fix-missing
 fi
 
