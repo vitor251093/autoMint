@@ -152,32 +152,36 @@ if [[ $activateTheme == "YES" ]]; then
 	echo -e "${red}Configuring Login Screen...${NC}"
 	sed -i '/\[daemon\]/aSelectLastLogin=false' /etc/mdm/mdm.conf
 	sed -i '/\[daemon\]/aGreeter=/usr/lib/mdm/mdmwebkit' /etc/mdm/mdm.conf
-	sed -i '/\[greeter\]/aHTMLTheme=Zukitwo-Circle' /etc/mdm/mdm.conf
+	sed -i '/\[greeter\]/aHTMLTheme=Simple' /etc/mdm/mdm.conf
 	
-	echo -e "${red}Updating Login Screen...${NC}"
-	cd /usr/share/mdm/html-themes/Zukitwo-Circle/
-	rm index.html
-	wget "$LoginFilesFolder/index.html" -O index.html
-	cd img/
-	wget "$LoginFilesFolder/logo.png" -O logo.png
-	wget "$LoginFilesFolder/offline.png" -O offline.png
-	wget "$LoginFilesFolder/online.png" -O online.png
-	wget "$LoginFilesFolder/checkWeb.sh" -O /etc/checkWeb.sh
-	chmod 755 /etc/checkWeb.sh
-	echo '@reboot root /etc/checkWeb.sh' >> /etc/crontab
-	echo '*/1 * * * * root /etc/checkWeb.sh' >> /etc/crontab
+	cd /usr/share/mdm/html-themes
+ 	cp -R Zukitwo-Circle/ Simple/
+ 	cd Simple/
+ 	wget "$LoginFilesFolder/index.html" -O index.html
+ 	cd img/
+ 	wget "$LoginFilesFolder/logo_dcc.png" -O logo.png
+ 	wget "$LoginFilesFolder/offline.png" -O offline.png
+ 	wget "$LoginFilesFolder/online.png" -O online.png
+ 	
+ 	sed -i 's/Zukitwo-Circle/Simple/g' /usr/share/mdm/html-themes/SimpleDCC/theme.info
+ 	sed -i 's/Zukitwo Circle by Bernard/Simple by VitorMM/g' /usr/share/mdm/html-themes/SimpleDCC/theme.info
+	
+ 	wget "$LoginFilesFolder/checkWeb.sh" -O /etc/checkWeb.sh
+ 	chmod 755 /etc/checkWeb.sh
+ 	echo '@reboot root /etc/checkWeb.sh' >> /etc/crontab
+ 	echo '*/1 * * * * root /etc/checkWeb.sh' >> /etc/crontab
 fi
 
 
 if [[ $activateNFS == "YES" ]]; then
-	echo -e "${red}NFS - Configurando a montagem da home...${NC}"
+	echo -e "${red}NFS - Configuring home mounting...${NC}"
 	apt-get install -y nfs-common
 	echo -e '$NFShome:/home\t/home\tnfs\tnfsvers=3,soft\t0\t0' >> /etc/fstab
 fi
 
 
 if [[ $activateLDAP == "YES" ]]; then
-	echo -e "${red}LDAP - Configurando o login dos alunos...${NC}"
+	echo -e "${red}LDAP - Configuring students login...${NC}"
 	echo -e 'BASE\t$LDAPbase\nURI\t$LDAPuri' >> /etc/ldap/ldap.conf
 	echo -e 'passwd:         compat ldap' >> /etc/nsswitch.conf
 	echo -e 'group:          compat ldap' >d> /etc/nsswitch.conf
@@ -187,29 +191,29 @@ if [[ $activateLDAP == "YES" ]]; then
 	rm /etc/ldap/ldap.conf
 	mv /etc/ldap/ldap2.conf /etc/ldap/ldap.conf
 	
-	echo -e "${red}Mudando permissões de nslcd.conf para evitar vulnerabilidade...${NC}"
+	echo -e "${red}Changing nslcd.conf permissions to avoid vulnerabilities...${NC}"
 	chmod 711 /etc/nslcd.conf
 fi
 
 
 if [[ $activateBURG == "YES" ]]; then
-	echo -e "${red}Instalando o BURG...${NC}"
-	echo -e "${red}-> Adicionando repositório...${NC}"
+	echo -e "${red}Installing BURG...${NC}"
+	echo -e "${red}-> Adding repository...${NC}"
 	echo "burg-pc burg/linux_cmdline string" | debconf-set-selections
 	echo "burg-pc burg/linux_cmdline_default string quiet splash vga=791" | debconf-set-selections
 	echo "burg-pc burg-pc/install_devices multiselect ${DEVICE}" | debconf-set-selections
 	add-apt-repository -y ppa:n-muench/burg
-	echo -e "${red}-> Atualizando lista de repositórios...${NC}"
+	echo -e "${red}-> Updating repositories list...${NC}"
 	apt-get update -qq
-	echo -e "${red}-> Instalando pacotes...${NC}"
+	echo -e "${red}-> Installing packages...${NC}"
 	apt-get install -y burg burg-themes
 	burg-install "(hd0)"
 	
 	
-	echo -e "${red}Configurando o BURG...${NC}"
+	echo -e "${red}Configuring BURG...${NC}"
 	
-	echo -e "${red}-> Configurando o Layout do BURG...${NC}"
-	echo -e "${red}-> Desativando botões desnecessários...${NC}"
+	echo -e "${red}-> Configuring BURG Layout...${NC}"
+	echo -e "${red}-> Disabling unneeded buttons...${NC}"
 	for i in {18..29}
 	do
    		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
@@ -218,12 +222,12 @@ if [[ $activateBURG == "YES" ]]; then
 	do
    		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
 	done
-	echo -e "${red}-> Removendo linhas da janela de Sobre...${NC}"
+	echo -e "${red}-> Removing About window lines...${NC}"
 	for i in {73..81}
 	do
    		sed -i "$i s/^/#/" /boot/burg/themes/sora/menus
 	done
-	echo -e "${red}-> Adicionando novos dados em Sobre...${NC}"
+	echo -e "${red}-> Adding About window new lines...${NC}"
 	sed -i "72itext { text = \"Auto-Generated image for Linux Mint\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
 	sed -i "73itext { class = br }" /boot/burg/themes/sora/menus
 	sed -i "74itext { text = \"$Linux\" class = \"dialog-text\" }" /boot/burg/themes/sora/menus
@@ -238,7 +242,7 @@ if [[ $activateBURG == "YES" ]]; then
 	sed -i 's/txt-about.png/txt-help.png/g' /boot/burg/themes/sora/menus
 	
 	
-	echo -e "${red}-> Melhorando a interface do Sora...${NC}"
+	echo -e "${red}-> Improving Sora Interface...${NC}"
 	sed -i "6 s/^/#/" /boot/burg/themes/sora/theme
 	sed -i "6ibackground = \":,,black,#0\"" /boot/burg/themes/sora/theme
 	for i in {82..90}
