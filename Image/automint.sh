@@ -485,6 +485,6 @@ if [[ $activateAutoShutdown == "YES" ]]; then
 fi
 
 
-echo -e "${red}Downloading posimage.sh script...${NC}"
-wget "$LoginFilesFolder/posimage.sh" -O /root/posimage.sh
-chmod 755 /root/posimage.sh
+echo -e "${red}Downloading posimage-mint.sh script...${NC}"
+wget "$LoginFilesFolder/posimage-mint.sh" -O /root/posimage-mint.sh
+chmod 755 /root/posimage-mint.sh
