@@ -1,11 +1,11 @@
 # autoMint
 Script to transform raw installation of Linux Mint into a complete Mint pack for universities and colleges. With it, creating images for the university computer (and for the students) will be very simple. Just download the 'autoimage.sh' file and the 'Image' folder. Put the folder available online, change it's URL in the 'autoimage.sh' file and run the following command:
 
-  chmod 755 autoimage.sh
+  **chmod 755 autoimage.sh**
 
 Now you can run it (do it as root):
 
-  sudo ./autoimage.sh
+  **sudo ./autoimage.sh**
 
 # Auto-Mint Flags
 
