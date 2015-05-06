@@ -78,11 +78,13 @@ cd /root
 rm automint.sh
 
 
-echo -e "${red}Downloading Windows auto-image script...${NC}"
-wget "$LoginFilesFolder/autowindows.sh" -O /root/autowindows.sh
-chmod 755 /root/autowindows.sh
-cd /root
-./autowindows.sh
-rm autowindows.sh
+if [[ $activateWindows == "YES" ]]; then
+    echo -e "${red}Downloading Windows auto-image script...${NC}"
+    wget "$LoginFilesFolder/autowindows.sh" -O /root/autowindows.sh
+    chmod 755 /root/autowindows.sh
+    cd /root
+    ./autowindows.sh
+    rm autowindows.sh
+fi
 
 export LoginFilesFolder=""
