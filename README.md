@@ -1,11 +1,11 @@
 # autoMint
-Script to transform raw installation of Linux Mint into a complete Mint pack for universities and colleges. With it, creating images for the university computer (and for the students) will be very simple. Just download that file and run the following command in it:
+Script to transform raw installation of Linux Mint into a complete Mint pack for universities and colleges. With it, creating images for the university computer (and for the students) will be very simple. Just download the 'autoimage.sh' file and the 'Image' folder. Put the folder available online, change it's URL in the 'autoimage.sh' file and run the following command:
   chmod 755 autoimage.sh
 
 Now you can run it (do it as root):
   sudo ./autoimage.sh
 
-# Flags
+# Auto-Mint Flags
 
   **-nfs**: Will install NFS in the machine, that can be used to mount a home folder. Follow that flag with the home directory (Example: -nfs myhome.university.org).
     
@@ -23,7 +23,7 @@ Now you can run it (do it as root):
     
   **-h | -s | -shutdown**: Will add an auto-shutdown script to crontab, which will turn off the machine at midnight. Very useful if it's going to be used in an university to save power.
 
-# Apps
+# Mint Apps
 That script include the automatic installation of the following packages throw apt-get:
 * curl
 * emacs
