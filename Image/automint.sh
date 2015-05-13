@@ -212,6 +212,10 @@ if [[ $activateBURG == "YES" ]]; then
 	
 	
 	echo -e "${red}-> Definning BURG parameters...${NC}"
+	gramar='#*GRUB_CMDLINE_LINUX_DEFAULT="[^"]*"'
+	GRUB_CMDLINE_LINUX_DEFAULT=$(cat /etc/default/burg | grep -o $gramar)
+	sed -i "s/$GRUB_CMDLINE_LINUX_DEFAULT/GRUB_CMDLINE_LINUX_DEFAULT=\"quiet splash vga=791 reboot=bios\"/g" /etc/default/burg
+	
 	gramar='#*GRUB_TIMEOUT=[^*?]*'
 	GRUB_TIMEOUT=$(cat /etc/default/burg | grep -o $gramar)
 	sed -i "s/$GRUB_TIMEOUT/GRUB_TIMEOUT=120/g" /etc/default/burg
