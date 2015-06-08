@@ -138,7 +138,7 @@ if [[ $activateLDAP == "YES" ]]; then
 	echo -e "${red}LDAP - Configuring students login...${NC}"
 	echo -e 'BASE\t$LDAPbase\nURI\t$LDAPuri' >> /etc/ldap/ldap.conf
 	echo -e 'passwd:         compat ldap' >> /etc/nsswitch.conf
-	echo -e 'group:          compat ldap' >d> /etc/nsswitch.conf
+	echo -e 'group:          compat ldap' >> /etc/nsswitch.conf
 	echo -e 'shadow:         compat ldap' >> /etc/nsswitch.conf
 	DEBIAN_FRONTEND=noninteractive apt-get install -q -y libnss-ldapd libpam-ldapd nscd
 	head -n -2 /etc/ldap/ldap.conf > /etc/ldap/ldap2.conf
